@@ -1,14 +1,42 @@
 <?php
 
+// variable du formulaire //
 $value = $_POST['value'] ?? '';
 
-if ($value < 10) {
-    $phrase1 = '<h2>Je suis inférieur a 10</h2>';
-} elseif ($test > 10) {
-    $phrase2 = '<h2>Je suis supérieur a 10</h2>';
+// variable de connection BDD //
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "test_php";
+
+// Reponse selon la valeur de la variable $value //
+if ($value === '') {
+    $phrase = '<h2>Aucune valeur na etait donné</h2>';
+} elseif ($value > 10) {
+    $phrase = '<h2>Je suis supérieur a 10</h2>';
+} elseif ($value < 10) {
+    $phrase = '<h2>Je suis inférieur a 10</h2>';
+} elseif ($value == 10) {
+    $phrase = '<h2>Je suis égale a 10</h2>';
 }
 
-$bdd = new PDO('mysql:host=localhost;dbname=test_php;charset=utf8', 'root', '');
+// connection //
+try {
+    $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
+    //définir le mode exception d'erreur PDO
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    $sql = "INSERT INTO `visiteurs`(`name`,`age`)
+    VALUES('$_POST[name]','$_POST[age]')
+    ";
+    //utiliser la fonction exec() car aucun résultat n'est renvoyé //
+    $conn->exec($sql);
+    echo "Nouveaux enregistrement ajoutés avec sucéés";
+} catch (PDOException $e) {
+    echo $sql . "<br>" . $e->getMessage();
+}
+$conn = null;
+
 
 ?>
 
@@ -24,7 +52,7 @@ $bdd = new PDO('mysql:host=localhost;dbname=test_php;charset=utf8', 'root', '');
 
 <body>
     <?php echo '<h1>Bonjour le monde</h1>' ?>
-    <?php print_r('' ?? $phrase1 ?? $phrase2)  ?>
+    <?php echo $phrase  ?>
     <form action="http://localhost:80/test_php/index.php" method="POST">
         <label for="name" id="name">Name</label>
         <input type="text" name="name" id="name_input">
@@ -34,6 +62,8 @@ $bdd = new PDO('mysql:host=localhost;dbname=test_php;charset=utf8', 'root', '');
         <input type="text" name="value" id="value_input">
         <input type="submit">
     </form>
+
+    <script src="index.js"></script>
 </body>
 
 </html>
